@@ -8,6 +8,7 @@
 #include "ppport.h"
 
 #include <libmemcached/memcached.h>
+#include <libmemcached-1.0/sasl.h>
 
 #define MEMCACHED_CALLBACK_MALLOC_FUNCTION 4
 #define MEMCACHED_CALLBACK_REALLOC_FUNCTION 5
@@ -957,6 +958,24 @@ set_callback_coderefs(Memcached__libmemcached ptr, SV *set_cb, SV *get_cb)
         lmc_state = LMC_STATE_FROM_PTR(ptr);
         sv_setsv(lmc_state->cb_context->set_cb, set_cb);
         sv_setsv(lmc_state->cb_context->get_cb, get_cb);
+
+memcached_return
+set_sasl_auth_data(Memcached__libmemcached ptr, SV *username_sv, SV *password_sv)
+    ALIAS:
+        memcached_set_sasl_auth_data = 1
+    PREINIT:
+        char *username;
+        size_t username_len;
+        char *password;
+        size_t password_len;
+    CODE:
+        username = SvPV(username_sv, username_len);
+        password = SvPV(password_sv, password_len);
+        RETVAL = memcached_set_sasl_auth_data(ptr, username, password);
+        printf("rc = %d, %d\n", RETVAL, LIBMEMCACHED_WITH_SASL_SUPPORT);
+
+    OUTPUT:
+        RETVAL
 
 
 memcached_return
